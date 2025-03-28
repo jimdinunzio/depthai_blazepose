@@ -383,6 +383,7 @@ class BlazeposeDepthai:
                     _force_detection = self.force_detection,
                     _pad_h = self.pad_h,
                     _img_h = self.img_h,
+                    _img_w = self.img_w,
                     _frame_size = self.frame_size,
                     _crop_w = self.crop_w,
                     _rect_transf_scale = self.rect_transf_scale,
@@ -467,7 +468,7 @@ class BlazeposeDepthai:
             lm_xyz[self.nb_kps:] = self.filter_landmarks_aux.apply(lm_xyz[self.nb_kps:], timestamp, object_scale)
             body.landmarks_world = self.filter_landmarks_world.apply(body.landmarks_world, timestamp)
 
-        body.landmarks = lm_xyz.astype(np.int)
+        body.landmarks = lm_xyz.astype(np.int32)
         # If we added padding to make the image square, we need to remove this padding from landmark coordinates and from rect_points
         if self.pad_h > 0:
             body.landmarks[:,1] -= self.pad_h

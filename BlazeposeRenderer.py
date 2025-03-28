@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from o3d_utils import Visu3D
-import mediapipe_utils as mpu
+from blazepose.o3d_utils import Visu3D
+import blazepose.mediapipe_utils as mpu
 
 
 
@@ -35,7 +35,7 @@ class BlazeposeRenderer:
         self.pause = False
 
         # Rendering flags
-        self.show_rot_rect = False
+        self.show_rot_rect = True
         self.show_landmarks = True
         self.show_score = False
         self.show_fps = True
@@ -113,7 +113,7 @@ class BlazeposeRenderer:
             # Show zone on which the spatial data were calculated
             cv2.rectangle(self.frame, tuple(body.xyz_zone[0:2]), tuple(body.xyz_zone[2:4]), (180,0,180), 2)
 
-    def draw_3d(self, body):
+    def draw_3d(self, body, target):
         self.vis3d.clear()
         self.vis3d.try_move()
         self.vis3d.add_geometries()
@@ -140,6 +140,8 @@ class BlazeposeRenderer:
                         points = points + translation - mid_hips_to_mid_shoulders   
                 else: 
                     draw_skeleton = False
+            if target is not None:
+                self.vis3d.add_segment(target, target + np.array([0,.01, 0]), color=[0,0,1])
             if draw_skeleton:
                 lines = LINES_BODY
                 colors = COLORS_BODY
@@ -150,7 +152,7 @@ class BlazeposeRenderer:
         self.vis3d.render()
                 
         
-    def draw(self, frame, body):
+    def draw(self, frame, body, target):
         if not self.pause:
             self.frame = frame
             if body:
@@ -161,7 +163,7 @@ class BlazeposeRenderer:
             self.body = None
         # else: self.frame points to previous frame
         if self.show_3d:
-            self.draw_3d(self.body)
+            self.draw_3d(self.body, target)
         return self.frame
     
     def exit(self):

@@ -1,14 +1,15 @@
 import numpy as np
 import cv2
 from numpy.core.fromnumeric import trace
-import mediapipe_utils as mpu
+import blazepose.mediapipe_utils as mpu
 from pathlib import Path
-from FPS import FPS, now
+from blazepose.FPS import FPS, now
 import depthai as dai
 import marshal
 import sys
 from string import Template
 from math import sin, cos
+from time import sleep
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 POSE_DETECTION_MODEL = str(SCRIPT_DIR / "models/pose_detection_sh4.blob")
@@ -72,7 +73,8 @@ class BlazeposeDepthai:
                 internal_fps=None,
                 internal_frame_height=1080,
                 trace=False,
-                force_detection=False):
+                force_detection=False,
+                device_id=None):
 
         self.pd_model = pd_model if pd_model else POSE_DETECTION_MODEL
         self.pp_model = pp_model if pd_model else DETECTION_POSTPROCESSING_MODEL
@@ -101,7 +103,23 @@ class BlazeposeDepthai:
         self.trace = trace
         self.force_detection = force_detection
 
-        self.device = dai.Device()
+        if device_id is not None:
+            try_count = 3
+            while try_count > 0:
+                found, device_info = dai.Device.getDeviceByMxId(device_id)
+
+                if found:
+                    break
+                else:
+                    if try_count > 1:
+                        sleep(2)
+                        try_count -= 1
+                    else:
+                        raise RuntimeError("Oak-D device not found!")
+            self.device = dai.Device(deviceInfo=device_info)
+        else:
+            raise RuntimeError("Should not get here!")
+            #self.device = dai.Device()
         self.xyz = False
         
         if input_src == None or input_src == "rgb" or input_src == "rgb_laconic":
@@ -539,7 +557,3 @@ class BlazeposeDepthai:
             print(f"# frames without body       : {self.nb_frames_no_body}")
             print(f"# pose detection inferences : {self.nb_pd_inferences}")
             print(f"# landmark inferences       : {self.nb_lm_inferences} - # after pose detection: {self.nb_lm_inferences - self.nb_lm_inferences_after_landmarks_ROI} - # after landmarks ROI prediction: {self.nb_lm_inferences_after_landmarks_ROI}")
-        
-        
-           
-

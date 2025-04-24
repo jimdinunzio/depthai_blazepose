@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from blazepose.o3d_utils import Visu3D
-import blazepose.mediapipe_utils as mpu
+from o3d_utils import Visu3D
+import mediapipe_utils as mpu
 
 
 
@@ -113,7 +113,7 @@ class BlazeposeRenderer:
             # Show zone on which the spatial data were calculated
             cv2.rectangle(self.frame, tuple(body.xyz_zone[0:2]), tuple(body.xyz_zone[2:4]), (180,0,180), 2)
 
-    def draw_3d(self, body, target):
+    def draw_3d(self, body, target=None):
         self.vis3d.clear()
         self.vis3d.try_move()
         self.vis3d.add_geometries()
@@ -152,7 +152,7 @@ class BlazeposeRenderer:
         self.vis3d.render()
                 
         
-    def draw(self, frame, body, target):
+    def draw(self, frame, body, target=None):
         if not self.pause:
             self.frame = frame
             if body:

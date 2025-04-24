@@ -1,9 +1,9 @@
 import numpy as np
 import cv2
 from numpy.core.fromnumeric import trace
-import blazepose.mediapipe_utils as mpu
+import mediapipe_utils as mpu
 from pathlib import Path
-from blazepose.FPS import FPS, now
+from FPS import FPS, now
 import depthai as dai
 import marshal
 import sys
@@ -118,8 +118,8 @@ class BlazeposeDepthai:
                         raise RuntimeError("Oak-D device not found!")
             self.device = dai.Device(deviceInfo=device_info)
         else:
-            raise RuntimeError("Should not get here!")
-            #self.device = dai.Device()
+            print("WARNING: Device ID not set. Using first one found.")
+            self.device = dai.Device()
         self.xyz = False
         
         if input_src == None or input_src == "rgb" or input_src == "rgb_laconic":
